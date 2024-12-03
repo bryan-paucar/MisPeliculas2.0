@@ -1,0 +1,82 @@
+fun AppScaffold() {
+    Scaffold(
+        topBar {AppTopBar()}
+        bottomBar {AppBottomBar()}
+        content {AppContent()}
+    )
+}//Fin función
+
+fun AppTopBar() {
+    TopAppBar(
+        colors
+        title
+            Box() {
+                Text("Mis Películas")
+            }
+        navigationIcon {
+            IconButton() {
+                Icon(menú)
+            }
+        }
+        actions {
+            IconButton() {
+                Icon(calendario)
+            }
+            IconButton() {
+                Icon(configuración)
+            }
+        }
+    )
+    DropdownMenu() {
+        DropdownMenuItem(Opción 1)
+        DropdownMenuItem(Opción 2)
+        DropdownMenuItem(Opción 3)
+    }
+}//Fin función
+
+fun AppBottomBar() {
+    BottomAppBar() {
+        Row() {
+            IconButton() {
+                Icon(buscar)
+            }
+            IconButton() {
+                Icon(eliminar)
+            }
+            IconButton() {
+                 Icon(me gusta)
+            }
+            FloatingActionButton() {
+                Icon(agregar)
+            }
+        }
+    }
+}//Fin función
+
+fun AppContent() {
+    Column() {
+        MovieListScreen()
+    }
+}//Fin función
+
+data class Movie (título, director, imagen)
+
+fun MovieRow(Movie) {
+    Row() {
+        Image(Portada películas)
+        Column() {
+            Text(titulo)
+            Text(director)
+        }
+    }
+}//Fin función
+
+val movieList=lista de las películas
+
+fun MovieListScreen() {
+    LazyColumn() {
+        items(movieList) {
+            MovieRow(movie)
+        }
+    }
+}//Fin función
