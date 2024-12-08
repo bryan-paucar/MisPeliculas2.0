@@ -1,0 +1,14 @@
+Image(
+    painter = painterResource(id = R.drawable.dog),
+    contentDescription = stringResource(id = R.string.dog_content_description)
+)
+
+val imageBitmap = ImageBitmap.imageResource(R.drawable.dog)
+
+
+Image(
+    painter = painterResource(id = R.drawable.baseline_shopping_cart_24),
+    contentDescription = stringResource(id = R.string.shopping_cart_content_desc)
+)
+
+val imageVector = ImageVector.vectorResource(id = R.drawable.baseline_shopping_cart_24)

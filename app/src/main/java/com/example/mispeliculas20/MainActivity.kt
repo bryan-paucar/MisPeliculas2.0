@@ -33,20 +33,13 @@ import com.example.mispeliculas20.ui.theme.MisPeliculas20Theme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // Habilita el diseño de borde a borde para una experiencia de usuario más inmersiva.
         enableEdgeToEdge()
-
         // Define el contenido de la actividad con Jetpack Compose.
         setContent {
             // Se aplica el tema principal de la aplicación.
             MisPeliculas20Theme {
-                // Scaffold es un contenedor que establece la estructura general de la app.
-                Scaffold(
-                    modifier = Modifier.fillMaxSize() // Asegura que ocupa toda la pantalla
-                ) { innerPadding -> // `innerPadding` representa el espacio reservado para las barras.
-                    AppScaffold()
-                }
+                AppScaffold()
             }
         }
     }
@@ -56,9 +49,19 @@ class MainActivity : ComponentActivity() {
  * Estructura principal de la aplicación.
  *
  * Incluye:
- * - Una barra superior (AppTopBar).
- * - Una barra inferior (AppBottomBar).
- * - Un área para el contenido principal (AppContent).
+ * - Una barra superior (`AppTopBar`) que contiene el título de la app y botones de acciones.
+ * - Una barra inferior (`AppBottomBar`) con botones de interacción y un botón flotante.
+ * - Un área para el contenido principal (`AppContent`), ajustado al espacio restante.
+ *
+ * Cómo funciona el `padding` en `Scaffold`:
+ * 1. El `Scaffold` calcula el espacio reservado para sus componentes (como `topBar`, `bottomBar`, etc.).
+ * 2. Proporciona este cálculo en forma de un objeto `PaddingValues` a través del lambda del parámetro `content`.
+ * 3. Es responsabilidad del contenido principal (en este caso, `AppContent`) aplicar explícitamente este `PaddingValues`
+ *    a través de su `Modifier` para respetar el espacio reservado.
+ *
+ * Nota:
+ * - `AppContent` recibe el `PaddingValues` calculado por el `Scaffold` pero no aplica automáticamente el espaciado.
+ * - El diseño final del contenido depende de que el `padding` se maneje correctamente dentro de `AppContent`.
  */
 @Composable
 fun AppScaffold() {
@@ -71,10 +74,12 @@ fun AppScaffold() {
 
         // Contenido principal.
         content = { padding ->
-            AppContent(padding) // El contenido respeta los márgenes proporcionados por el Scaffold.
+            // Pasa el padding calculado al contenido principal para que lo respete explícitamente.
+            AppContent(padding)
         }
     )
 }
+
 
 /**
  * Barra superior que incluye:
@@ -182,20 +187,30 @@ fun AppBottomBar() {
 }
 
 /**
- * Contenido principal de la aplicación, que se ajusta al espacio disponible
- * y muestra una lista de películas.
+ * Contenido principal de la aplicación, ajustado al espacio disponible y muestra una lista de películas.
  *
- * @param padding Espaciado interno proporcionado por el Scaffold.
+ * @param padding Espaciado interno proporcionado por el `Scaffold`, que se debe aplicar explícitamente
+ *                a los elementos para que respeten el espacio reservado por las barras superior e inferior.
+ *
+ * Nota:
+ * - El `Scaffold` no aplica automáticamente el `padding` a los elementos dentro de su contenido. Solo calcula
+ *   el espacio necesario para sus componentes (`topBar`, `bottomBar`, etc.) y lo pasa como un objeto `PaddingValues`.
+ *   Es responsabilidad del desarrollador aplicar este `padding` mediante `.padding(padding)` a los elementos contenidos.
+ *
+ * - El uso de un `Column` es opcional y útil si se necesita trabajar con múltiples elementos dentro de `AppContent`.
+ *   En ese caso, el `padding` del `Scaffold` debe aplicarse al `Column`.
+ *
+ * - Al pasar el `padding` como parte del `Modifier` de `MovieListScreen`, nos aseguramos de que la lista respete
+ *   el espacio reservado por el `Scaffold`. También es importante que los elementos dentro de `MovieListScreen`
+ *   usen el `modifier` proporcionado y no creen uno nuevo.
  */
 @Composable
 fun AppContent(padding: PaddingValues) {
-    Column(
+    MovieListScreen(
         modifier = Modifier
-            .fillMaxSize() // Ocupar todo el espacio disponible.
-            .padding(padding) // Ajustar el contenido al espaciado.
-    ) {
-        MovieListScreen() // Llama a la función que genera la lista de películas.
-    }
+            .fillMaxSize() // Asegura que la lista ocupe todo el espacio restante.
+            .padding(padding) // Aplica el padding calculado por el Scaffold.
+    )
 }
 
 /**
@@ -266,13 +281,24 @@ val movieList = listOf(
 
 /**
  * Pantalla que muestra una lista de películas en un diseño vertical.
+ *
+ * @param modifier Modificador que se aplica al contenedor principal (`LazyColumn`), permitiendo que
+ *                 esta función respete configuraciones externas, como el padding del `Scaffold`.
+ *
+ * Nota:
+ * - El `contentPadding` se usa para que los elementos hijos respeten un padding interno (horizontal y vertical).
+ * - Anteriormente, un `Modifier` nuevo reemplazaba al `modifier` proporcionado como parámetro, lo que
+ *   ignoraba configuraciones externas como el padding definido en su llamada desde `AppContent`:
+ *   `MovieListScreen(modifier = Modifier.fillMaxSize().padding(padding))`.
+ *   Esto ha sido corregido, y ahora el `modifier` proporcionado se utiliza correctamente, combinado con otros
+ *   modificadores locales (`fillMaxSize`, `background`).
  */
 @Composable
-fun MovieListScreen() {
+fun MovieListScreen(modifier: Modifier) {
     LazyColumn(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp), //Los elementos hijos respetaran este padding
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
